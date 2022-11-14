@@ -1,15 +1,15 @@
 import { Knex } from "knex";
-import TransactionModel from "../../models/transactions";
+import { TransactionModel } from "../../models/transactions";
 import client from "../DB/DB";
 import TransactionNamespace from "./TransactionNamespace";
 
 export default class WithdrawFromAccount {
-  source: string;
+  source: number;
   amount: number;
-  activeTransactionId: string;
-  initiatedBy: string;
+  activeTransactionId: number;
+  initiatedBy: number;
 
-  constructor(opts: { sourceWallet: string; amount: number }) {
+  constructor(opts: { sourceWallet: number; amount: number }) {
     this.source = opts.sourceWallet;
     this.amount = opts.amount;
     this.initiatedBy = opts.sourceWallet;
@@ -36,35 +36,36 @@ export default class WithdrawFromAccount {
   }
 
   private async createTransactionReference() {
-    const transactions = await TransactionModel.insert(
-      {
-        status: "created",
-        source_wallet: this.source || null,
-        amount: this.amount || null,
-        initiated_by: this.initiatedBy,
-      },
-      ["id"]
-    );
+    const transactions = await TransactionModel().insert({
+      status: "created",
+      source_wallet: this.source || null,
+      amount: this.amount || null,
+      initiated_by: this.initiatedBy,
+    });
 
-    this.activeTransactionId = transactions[0].id;
+    this.activeTransactionId = transactions[0];
   }
 
   private async updateTransactionAsFailedOnError() {
-    await TransactionModel.update({
-      status: "failed",
-      updated_at: client.fn.now(6),
-    }).where({
-      id: this.activeTransactionId,
-    });
+    await TransactionModel()
+      .update({
+        status: "failed",
+        updated_at: client.fn.now(6),
+      })
+      .where({
+        id: this.activeTransactionId,
+      });
   }
 
   private async updateTransactionOnSuccess() {
-    await TransactionModel.update({
-      status: "successful",
-      updated_at: client.fn.now(6),
-    }).where({
-      id: this.activeTransactionId,
-    });
+    await TransactionModel()
+      .update({
+        status: "successful",
+        updated_at: client.fn.now(6),
+      })
+      .where({
+        id: this.activeTransactionId,
+      });
   }
 
   private async withdrawFunds(
@@ -94,7 +95,7 @@ export default class WithdrawFromAccount {
       });
 
     const newRow = (
-      await client("accounts")
+      await client("transactions")
         .transacting(transaction)
         .select(["balance"])
         .where({

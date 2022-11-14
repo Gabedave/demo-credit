@@ -47,22 +47,22 @@ async function retryTransaction(
 }
 
 const withdrawFromAccount = (opts: {
-  sourceWallet: string;
+  sourceWallet: number;
   amount: number;
 }) => {
   return new WithdrawFromAccount(opts).call();
 };
 
 const depositIntoAccount = (opts: {
-  destinationWallet: string;
+  destinationWallet: number;
   amount: number;
 }) => {
   return new DepositIntoAccount(opts).call();
 };
 
 const transferBetweenAccounts = (opts: {
-  sourceWallet: string;
-  destinationWallet: string;
+  sourceWallet: number;
+  destinationWallet: number;
   amount: number;
 }) => {
   return new TransferBetweenAccounts(opts).call();

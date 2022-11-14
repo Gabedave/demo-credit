@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "d754c69b-875f-4d95-b711-912e682b6aa5",
+		"name": "Demo Credit App Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18551524"
+	},
+	"item": [
+		{
+			"name": "Health check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/health",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create account",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"gabedave01@gmail.com\",\n    \"first_name\": \"David\",\n    \"last_name\": \"Gabriel\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/users/api/v1/users",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"users",
+						"api",
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Withdraw money",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_type\": \"withdrawal\",\n    \"user_id\": \"1\",\n    \"amount\": 20\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/accounts/api/v1/transactions",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						"api",
+						"v1",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deposit money",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_type\": \"deposit\",\n    \"user_id\": \"1\",\n    \"amount\": 200\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/accounts/api/v1/transactions",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						"api",
+						"v1",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transfer to user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transaction_type\": \"transfer\",\n    \"user_id\": \"1\",\n    \"amount\": 200,\n    \"receiver_id\": \"2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/accounts/api/v1/transactions",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						"api",
+						"v1",
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check balance",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/accounts/api/v1/balance",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"accounts",
+						"api",
+						"v1",
+						"balance"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "faux_token",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "localhost:80"
+		}
+	]
+}

@@ -1,10 +1,15 @@
 version: "3.5"
 services:
   mysql:
-    image: mysql:latest
+    image: mysql:8.0.11
+    # https://stackoverflow.com/questions/51670095/docker-flyway-mysql-8-client-does-not-support-authentication-protocol-requeste
+    command: --default-authentication-plugin=mysql_native_password
     ports:
-      - 3306:3306
+      - 3406:3306
     restart: always
+    environment:
+      - MYSQL_DATABASE=demo_credit
+      - MYSQL_ROOT_PASSWORD=password
     volumes:
       - demo_credit_volume:/data/db
     networks:
@@ -19,17 +24,20 @@ services:
     restart: unless-stopped
     environment:
       - PORT=3000
-      - MYSQL_HOST=localhost
+      - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
-      - MYSQL_USER=david
+      - MYSQL_USER=root
       - MYSQL_PASSWORD=password
       - DB_NAME=demo_credit
     ports:
-      - 3000:80
+      - 80:3000
+    networks:
+      - demo_credit_network
 
-  networks:
-    demo_credit_network:
-      name: demo_credit_network
+networks:
+  demo_credit_network:
+    name: demo_credit_network
 
-  volumes:
+volumes:
+  demo_credit_volume:
     name: demo_credit_volume

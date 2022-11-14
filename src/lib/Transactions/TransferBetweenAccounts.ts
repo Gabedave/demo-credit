@@ -1,19 +1,19 @@
 import { Knex } from "knex";
-import TransactionModel from "../../models/transactions";
-import WalletModel from "../../models/wallets";
+import { TransactionModel } from "../../models/transactions";
+import { WalletModel } from "../../models/wallets";
 import client from "../DB/DB";
 import TransactionNamespace from "./TransactionNamespace";
 
 export default class TransferBetweenAccounts {
-  source: string;
-  receiver: string;
+  source: number;
+  receiver: number;
   amount: number;
-  activeTransactionId: string;
-  initiatedBy: string;
+  activeTransactionId: number;
+  initiatedBy: number;
 
   constructor(opts: {
-    sourceWallet: string;
-    destinationWallet: string;
+    sourceWallet: number;
+    destinationWallet: number;
     amount: number;
   }) {
     this.source = opts.sourceWallet;
@@ -43,43 +43,45 @@ export default class TransferBetweenAccounts {
   }
 
   private async createTransactionReference() {
-    const transactions = await TransactionModel.insert(
-      {
-        status: "created",
-        source_wallet: this.source || null,
-        receiver_wallet: this.receiver || null,
-        amount: this.amount || null,
-        initiated_by: this.initiatedBy,
-      },
-      ["id"]
-    );
+    const transactions = await TransactionModel().insert({
+      status: "created",
+      source_wallet: this.source || null,
+      receiver_wallet: this.receiver || null,
+      amount: this.amount || null,
+      initiated_by: this.initiatedBy,
+    });
 
-    this.activeTransactionId = transactions[0].id;
+    this.activeTransactionId = transactions[0];
   }
 
   private async updateTransactionAsFailedOnError() {
-    await TransactionModel.update({
-      status: "failed",
-      updated_at: client.fn.now(6),
-    }).where({
-      id: this.activeTransactionId,
-    });
+    await TransactionModel()
+      .update({
+        status: "failed",
+        updated_at: client.fn.now(6),
+      })
+      .where({
+        id: this.activeTransactionId,
+      });
   }
 
   private async updateTransactionOnSuccess() {
-    await TransactionModel.update({
-      status: "successful",
-      updated_at: client.fn.now(6),
-    }).where({
-      id: this.activeTransactionId,
-    });
+    await TransactionModel()
+      .update({
+        status: "successful",
+        updated_at: client.fn.now(6),
+      })
+      .where({
+        id: this.activeTransactionId,
+      });
   }
 
   private async transferFunds(
     client: Knex<any, unknown[]>,
     transaction: Knex.Transaction<any, any[]>
   ) {
-    const rows = await WalletModel.transacting(transaction)
+    const rows = await WalletModel()
+      .transacting(transaction)
       .select("balance")
       .where({
         id: this.source,
@@ -90,7 +92,8 @@ export default class TransferBetweenAccounts {
       console.log(`Insufficient funds; Account: ${this.source}`);
     }
 
-    await WalletModel.transacting(transaction)
+    await WalletModel()
+      .transacting(transaction)
       .update({
         balance: client.raw(`balance - ${this.amount}`),
         updated_at: client.fn.now(6),
@@ -99,7 +102,8 @@ export default class TransferBetweenAccounts {
         id: this.source,
       });
 
-    await WalletModel.transacting(transaction)
+    await WalletModel()
+      .transacting(transaction)
       .update({
         balance: client.raw(`balance + ${this.amount}`),
         updated_at: client.fn.now(6),
@@ -109,7 +113,7 @@ export default class TransferBetweenAccounts {
       });
 
     const newRow = (
-      await client("accounts")
+      await client("transactions")
         .transacting(transaction)
         .select("balance")
         .where({

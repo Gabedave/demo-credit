@@ -43,12 +43,33 @@ With the various relationships:
 
 ![Entity Relation Diagram][er_diagram]
 
+## API Endpoints
+
+View the API postman collection [here](./files/Demo%20Credit%20App%20Tests.postman_collection.json)
+
+GET {{host}}/health
+Check health
+
+POST {{host}}/users/api/v1/users
+Create account
+
+POST {{host}}/accounts/api/v1/transactions
+Create transaction
+
+GET {{host}}/accounts/api/v1/balance
+Check balance
+
+## A few things to note
+
+- Architecture: Although a monolith, the code structure is written as microservices with separate routers to take advantage of the benefits of microservices as well as monoliths.
+- Transaction Retries: I implemented a function to retry transactions incase of failure. Retries max out at a set number and have an exponential backoff
+
 # How to run
 
 The microservices is run in a docker container and can be started by building the image from the [Dockerfile](./Dockerfile) and running the container.
 
 ```
-docker build -t demo-credit-app . && docker run -dp 3000:80 demo-credit-app
+docker build -t demo-credit-app . && docker run -dp 80:3000 demo-credit-app
 ```
 
 The database is run in another container from the official mysql image.
@@ -56,7 +77,7 @@ The database is run in another container from the official mysql image.
 Use the Docker compose command below to start both containers at once
 
 ```
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
-[er_diagram]: ./data/demo%20credit%20er%20diagram.png "Entity Relation Diagram"
+[er_diagram]: ./files/demo%20credit%20er%20diagram.png "Entity Relation Diagram"

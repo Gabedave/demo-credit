@@ -19,7 +19,7 @@ RUN npm run build && npm cache clean --force
 ENV PORT=3000
 ENV MYSQL_HOST=localhost
 ENV MYSQL_PORT=3306
-ENV MYSQL_USER=david
+ENV MYSQL_USER=root
 ENV MYSQL_PASSWORD=password
 ENV DB_NAME=demo_credit
 # end of environment variables

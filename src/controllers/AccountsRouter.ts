@@ -13,6 +13,33 @@ class AccountsRouter {
     this.init();
   }
 
+  private async checkBalance(req: Request, res: Response) {
+    const userId = req.body.user_id;
+
+    if (!ValidateNamespace.validateRequiredFieldsNotUndefined([userId])) {
+      return ResponseNamespace.sendRequiredParameterMissingError(res);
+    }
+
+    try {
+      const data = await UserNamespace.checkBalance({ userId: userId });
+
+      return ResponseNamespace.sendSuccess(
+        res,
+        200,
+        data,
+        "Fetch balance successful"
+      );
+    } catch (err) {
+      console.log("Error fetching balance. ", err);
+
+      return ResponseNamespace.sendError(
+        res,
+        500,
+        `Error fetching balance. ${err?.message || ""}`
+      );
+    }
+  }
+
   private async createTransaction(req: Request, res: Response) {
     const userId = req.body.user_id;
     const transactionType = req.body.transaction_type;
@@ -60,6 +87,12 @@ class AccountsRouter {
       verifyUserToken,
       verifyUserExists,
       this.createTransaction
+    );
+    this.router.get(
+      "/balance",
+      verifyUserToken,
+      verifyUserExists,
+      this.checkBalance
     );
   }
 }

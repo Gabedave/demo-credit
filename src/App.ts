@@ -1,8 +1,9 @@
-import * as express from "express";
+import express from "express";
 import helmet from "helmet";
 import * as bodyParser from "body-parser";
-import * as compression from "compression";
-import * as cors from "cors";
+import compression from "compression";
+import cors from "cors";
+import morgan from "morgan";
 import UserRouter from "./controllers/UserRouter";
 import AccountsRouter from "./controllers/AccountsRouter";
 
@@ -21,6 +22,7 @@ class App {
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(cors());
+    this.app.use(morgan("combined"));
   }
 
   private routes() {

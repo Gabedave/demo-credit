@@ -1,5 +1,5 @@
-import UserModel from "../../models/users";
-import client from "../DB/DB";
+import { UserModel } from "../../models/users";
+import { WalletModel } from "../../models/wallets";
 import TransactionNamespace from "../Transactions/TransactionNamespace";
 
 const validTransactionTypes = ["withdrawal", "deposit", "transfer"];
@@ -9,6 +9,7 @@ const withdrawFromAccount = async (opts: {
   amount: number;
 }) => {
   const sourceWallet = (await findUserById(opts.userId)).wallet_id;
+  console.log({ sourceWallet });
   return TransactionNamespace.withdrawFromAccount({
     sourceWallet: sourceWallet,
     amount: opts.amount,
@@ -66,7 +67,7 @@ const makeTransaction = async (opts: {
 };
 
 const findUserById = async (id: string) => {
-  const users = await UserModel.select("*").where("id", id);
+  const users = await UserModel().select("*").where("id", id);
   return users[0];
 };
 
@@ -75,15 +76,27 @@ const createUser = async (opts: {
   lastName: string;
   email: string;
 }) => {
-  const users = await UserModel.insert(
-    {
-      first_name: opts.firstName,
-      last_name: opts.lastName,
-      email: opts.email,
-    },
-    []
-  );
-  return users[0];
+  const users = await UserModel().insert({
+    first_name: opts.firstName,
+    last_name: opts.lastName,
+    email: opts.email,
+  });
+  console.log({ users });
+  const wallet = await WalletModel().insert({
+    user_id: users[0],
+  });
+  console.log({ wallet });
+  return (
+    await UserModel().update({
+      wallet_id: wallet[0],
+    })
+  )[0];
+};
+
+const checkBalance = async (opts: { userId: string }) => {
+  const balance = await WalletModel().select("*").where("user_id", opts.userId);
+
+  return balance[0];
 };
 
 const UserNamespace = {
@@ -93,6 +106,7 @@ const UserNamespace = {
   transferToAnotherUser,
   createUser,
   makeTransaction,
+  checkBalance,
 };
 
 export default UserNamespace;

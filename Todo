@@ -2,4 +2,4 @@
 - Build api for MySql Database with Knex. Done
 - Write Documentation. Done
 - Test endpoint and add Postman collection
-- Add things to take note off to documentation. e.g. retries for transactions
+- Add things to take note off to documentation. e.g. retries for transactions, endpoints

@@ -28,7 +28,7 @@ class UserRouter {
     }
 
     try {
-      const data = UserNamespace.createUser({
+      const data = await UserNamespace.createUser({
         firstName,
         lastName,
         email,

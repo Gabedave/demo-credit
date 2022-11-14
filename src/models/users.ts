@@ -1,21 +1,26 @@
 import client from "../lib/DB/DB";
 
 export interface UserSchema {
-  id: string;
+  id: number;
   email: string;
   first_name: string;
   last_name: string;
-  wallet_id: string;
+  wallet_id: number;
   created_at: string;
   updated_at: string;
 }
 
-async function persistTable() {
-  client.schema.createTableIfNotExists("users", (table) => {
-    table.uuid("id", { primaryKey: true, useBinaryUuid: true });
+export async function persistUserTable() {
+  if (await client.schema.hasTable("users")) return;
+
+  return client.schema.createTable("users", (table) => {
+    table.increments("id").primary();
+
     table.string("first_name");
     table.string("last_name");
-    table.string("email");
+    table.string("email").unique();
+
+    table.integer("wallet_id");
     table.foreign("wallet_id").references("wallets.id");
 
     table.timestamp("created_at", { precision: 6 }).defaultTo(client.fn.now(6));
@@ -23,8 +28,6 @@ async function persistTable() {
   });
 }
 
-persistTable();
+const UserModel = () => client<UserSchema>("users");
 
-const UserModel = client<UserSchema>("users");
-
-export default UserModel;
+export { UserModel };
