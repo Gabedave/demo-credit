@@ -1,0 +1,35 @@
+version: "3.5"
+services:
+  mysql:
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      - demo_credit_volume:/data/db
+    networks:
+      - demo_credit_network
+
+  demo_credit_microservices:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - MYSQL_HOST=localhost
+      - MYSQL_PORT=3306
+      - MYSQL_USER=david
+      - MYSQL_PASSWORD=password
+      - DB_NAME=demo_credit
+    ports:
+      - 3000:80
+
+  networks:
+    demo_credit_network:
+      name: demo_credit_network
+
+  volumes:
+    name: demo_credit_volume
