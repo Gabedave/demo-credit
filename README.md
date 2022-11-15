@@ -85,4 +85,8 @@ Use the Docker compose command below to start both containers at once
 docker compose up --build -d
 ```
 
+# Demo
+
+Consume a deployed demo API at [red-hokage.herokuapp.com](https://red-hokage.herokuapp.com/)
+
 [er_diagram]: ./files/demo%20credit%20er%20diagram.png "Entity Relation Diagram"
