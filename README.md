@@ -46,6 +46,11 @@ With the various relationships:
 ## API Endpoints
 
 View the API postman collection [here](./files/Demo%20Credit%20App%20Tests.postman_collection.json)
+Access Authenticated endpoint through Bearer Token Authentication
+
+```
+token="Bearer faux-token"
+```
 
 GET {{host}}/health
 Check health
@@ -54,10 +59,10 @@ POST {{host}}/users/api/v1/users
 Create account
 
 POST {{host}}/accounts/api/v1/transactions
-Create transaction
+Create transaction (Authenticated)
 
 GET {{host}}/accounts/api/v1/balance
-Check balance
+Check balance (Authenticated)
 
 ## A few things to note
 

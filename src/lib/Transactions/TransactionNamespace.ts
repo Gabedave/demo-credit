@@ -9,8 +9,10 @@ async function retryTransaction(
   client: Knex<any, unknown[]>,
   operationToPerform: (
     client: Knex<any, unknown[]>,
-    transaction: Knex.Transaction<any, any[]>
-  ) => Promise<any>
+    transaction: Knex.Transaction<any, any[]>,
+    opts?: any
+  ) => Promise<any>,
+  opts?: any
 ) {
   let start = 0;
 
@@ -26,7 +28,7 @@ async function retryTransaction(
     start++;
 
     try {
-      const result = await operationToPerform(client, transaction);
+      const result = await operationToPerform(client, transaction, opts);
       await transaction.commit();
 
       return result;
@@ -49,6 +51,7 @@ async function retryTransaction(
 const withdrawFromAccount = (opts: {
   sourceWallet: number;
   amount: number;
+  initiatedBy: number;
 }) => {
   return new WithdrawFromAccount(opts).call();
 };
@@ -56,6 +59,7 @@ const withdrawFromAccount = (opts: {
 const depositIntoAccount = (opts: {
   destinationWallet: number;
   amount: number;
+  initiatedBy: number;
 }) => {
   return new DepositIntoAccount(opts).call();
 };
@@ -64,6 +68,7 @@ const transferBetweenAccounts = (opts: {
   sourceWallet: number;
   destinationWallet: number;
   amount: number;
+  initiatedBy: number;
 }) => {
   return new TransferBetweenAccounts(opts).call();
 };

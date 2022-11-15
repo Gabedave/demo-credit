@@ -15,11 +15,12 @@ export default class TransferBetweenAccounts {
     sourceWallet: number;
     destinationWallet: number;
     amount: number;
+    initiatedBy: number;
   }) {
     this.source = opts.sourceWallet;
     this.receiver = opts.destinationWallet;
     this.amount = opts.amount;
-    this.initiatedBy = opts.sourceWallet;
+    this.initiatedBy = opts.initiatedBy;
   }
 
   public async call() {
@@ -29,16 +30,14 @@ export default class TransferBetweenAccounts {
       result = await TransactionNamespace.retryTransaction(
         3,
         client,
-        this.transferFunds
+        this.transferFunds,
+        { source: this.source, receiver: this.receiver, amount: this.amount }
       );
+      await this.updateTransactionOnSuccess();
+      return result;
     } catch (err) {
       console.log("[TransferBetweenAccounts#transferFunds] An error occured.");
       await this.updateTransactionAsFailedOnError();
-    } finally {
-      if (result) {
-        await this.updateTransactionOnSuccess();
-        return result;
-      }
     }
   }
 
@@ -78,47 +77,46 @@ export default class TransferBetweenAccounts {
 
   private async transferFunds(
     client: Knex<any, unknown[]>,
-    transaction: Knex.Transaction<any, any[]>
+    transaction: Knex.Transaction<any, any[]>,
+    opts?: { source?: number; receiver?: number; amount: number }
   ) {
     const rows = await WalletModel()
       .transacting(transaction)
       .select("balance")
       .where({
-        id: this.source,
+        id: opts.source,
       });
 
     const currentBalance = rows[0].balance;
-    if (currentBalance < this.amount) {
-      console.log(`Insufficient funds; Account: ${this.source}`);
+    if (currentBalance < opts.amount) {
+      console.log(`Insufficient funds; Account: ${opts.source}`);
+      throw new Error(`Insufficient funds; Account: ${opts.source}`);
     }
 
     await WalletModel()
       .transacting(transaction)
       .update({
-        balance: client.raw(`balance - ${this.amount}`),
+        balance: client.raw(`balance - ${opts.amount}`),
         updated_at: client.fn.now(6),
       })
       .where({
-        id: this.source,
+        id: opts.source,
       });
 
     await WalletModel()
       .transacting(transaction)
       .update({
-        balance: client.raw(`balance + ${this.amount}`),
+        balance: client.raw(`balance + ${opts.amount}`),
         updated_at: client.fn.now(6),
       })
       .where({
-        id: this.receiver,
+        id: opts.receiver,
       });
 
     const newRow = (
-      await client("transactions")
-        .transacting(transaction)
-        .select("balance")
-        .where({
-          id: this.source,
-        })
+      await WalletModel().transacting(transaction).select("*").where({
+        id: opts.source,
+      })
     )[0];
 
     return newRow;

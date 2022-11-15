@@ -16,7 +16,7 @@ export async function persistWalletTable() {
 
     table.decimal("balance").defaultTo(0.0);
 
-    table.integer("user_id").notNullable();
+    table.integer("user_id").unsigned().notNullable();
     table.foreign("user_id").references("users.id");
 
     table.timestamp("created_at", { precision: 6 }).defaultTo(client.fn.now(6));

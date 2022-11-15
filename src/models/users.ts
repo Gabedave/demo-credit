@@ -20,7 +20,7 @@ export async function persistUserTable() {
     table.string("last_name");
     table.string("email").unique();
 
-    table.integer("wallet_id");
+    table.integer("wallet_id").unsigned().unique();
     table.foreign("wallet_id").references("wallets.id");
 
     table.timestamp("created_at", { precision: 6 }).defaultTo(client.fn.now(6));

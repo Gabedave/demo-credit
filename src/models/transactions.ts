@@ -22,13 +22,13 @@ export async function persistTransactionTable() {
       .enum("status", ["created", "successful", "failed"])
       .defaultTo("created");
 
-    table.integer("source_wallet").defaultTo(null);
+    table.integer("source_wallet").unsigned().defaultTo(null);
     table.foreign("source_wallet").references("wallets.id");
 
-    table.integer("receiver_wallet").defaultTo(null);
+    table.integer("receiver_wallet").unsigned().defaultTo(null);
     table.foreign("receiver_wallet").references("wallets.id");
 
-    table.integer("initiated_by").notNullable();
+    table.integer("initiated_by").unsigned().notNullable();
     table.foreign("initiated_by").references("users.id");
 
     table.decimal("amount").defaultTo(null);

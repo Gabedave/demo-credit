@@ -5,7 +5,7 @@ import TransactionNamespace from "../Transactions/TransactionNamespace";
 const validTransactionTypes = ["withdrawal", "deposit", "transfer"];
 
 const withdrawFromAccount = async (opts: {
-  userId: string;
+  userId: number;
   amount: number;
 }) => {
   const sourceWallet = (await findUserById(opts.userId)).wallet_id;
@@ -13,38 +13,41 @@ const withdrawFromAccount = async (opts: {
   return TransactionNamespace.withdrawFromAccount({
     sourceWallet: sourceWallet,
     amount: opts.amount,
+    initiatedBy: opts.userId,
   });
 };
 
-const depositIntoAccount = async (opts: { userId: string; amount: number }) => {
+const depositIntoAccount = async (opts: { userId: number; amount: number }) => {
   const receiverWallet = (await findUserById(opts.userId)).wallet_id;
   return TransactionNamespace.depositIntoAccount({
     destinationWallet: receiverWallet,
     amount: opts.amount,
+    initiatedBy: opts.userId,
   });
 };
 
 const transferToAnotherUser = async (opts: {
-  userId: string;
+  userId: number;
   amount: number;
-  receiverId: string;
+  receiverId: number;
 }) => {
   if (!opts.receiverId) {
     throw new Error("Receiver missing");
   }
-  const receiverWallet = (await findUserById(opts.receiverId)).wallet_id;
-  const sourceWallet = (await findUserById(opts.userId)).wallet_id;
+  const receiverWallet = (await findUserById(opts.receiverId))?.wallet_id;
+  const sourceWallet = (await findUserById(opts.userId))?.wallet_id;
   return TransactionNamespace.transferBetweenAccounts({
     sourceWallet: sourceWallet,
     destinationWallet: receiverWallet,
     amount: opts.amount,
+    initiatedBy: opts.userId,
   });
 };
 
 const makeTransaction = async (opts: {
   transactionType: string;
-  userId: string;
-  receiverId?: string;
+  userId: number;
+  receiverId?: number;
   amount: number;
 }) => {
   if (!validTransactionTypes.includes(opts.transactionType)) {
@@ -55,7 +58,7 @@ const makeTransaction = async (opts: {
       return withdrawFromAccount({ userId: opts.userId, amount: opts.amount });
     case "deposit":
       return depositIntoAccount({ userId: opts.userId, amount: opts.amount });
-    case "transaction":
+    case "transfer":
       return transferToAnotherUser({
         userId: opts.userId,
         amount: opts.amount,
@@ -66,7 +69,7 @@ const makeTransaction = async (opts: {
   }
 };
 
-const findUserById = async (id: string) => {
+const findUserById = async (id: number) => {
   const users = await UserModel().select("*").where("id", id);
   return users[0];
 };
@@ -86,15 +89,20 @@ const createUser = async (opts: {
     user_id: users[0],
   });
   console.log({ wallet });
-  return (
-    await UserModel().update({
+
+  await UserModel()
+    .update({
       wallet_id: wallet[0],
     })
-  )[0];
+    .where("id", users[0]);
+
+  return UserModel().select("*").where("id", users[0]);
 };
 
-const checkBalance = async (opts: { userId: string }) => {
-  const balance = await WalletModel().select("*").where("user_id", opts.userId);
+const checkBalance = async (opts: { userId: number }) => {
+  const balance = await WalletModel()
+    .select(["balance"])
+    .where("user_id", opts.userId);
 
   return balance[0];
 };

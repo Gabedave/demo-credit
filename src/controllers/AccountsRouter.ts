@@ -21,7 +21,7 @@ class AccountsRouter {
     }
 
     try {
-      const data = await UserNamespace.checkBalance({ userId: userId });
+      const data = await UserNamespace.checkBalance({ userId: Number(userId) });
 
       return ResponseNamespace.sendSuccess(
         res,
@@ -59,9 +59,9 @@ class AccountsRouter {
     try {
       const data = await UserNamespace.makeTransaction({
         transactionType: transactionType,
-        userId: userId,
-        receiverId: receiverId,
-        amount: amount,
+        userId: Number(userId),
+        receiverId: Number(receiverId),
+        amount: Number(amount),
       });
 
       return ResponseNamespace.sendSuccess(
